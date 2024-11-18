@@ -36,7 +36,7 @@ class Model(nn.Module):
 
         self.network = nn.Sequential(*layers)
 
-
+    # The driver function, that retrieves the embeddings for the user and item, and passes it through the network.
     def forward(self, userIDs, itemIDs):
         
         userVecs = self.userEmbedding(userIDs)

@@ -1,18 +1,41 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split as tts
+import torch
+from torch.utils.data import DataLoader, TensorDataset
 
-data = pd.read_csv("raw/ml-100k/u.data", sep="\t")
-# print(data.head(10))
+def prepData(file_path, delimiter="\t"):
 
-# Casting data to correct types for use 
-data["userID"] = data["userID"].astype(int)
-data["movieID"] = data["movieID"].astype(int)
-data["rating"] = data["rating"].astype(float)
+	# "raw/ml-100k/u.data"
+	data = pd.read_csv(file_path, sep=delimiter)
+	# print(data.head(10))
 
-# data.head(), data.info()
+	# Re-mapping user IDs to new IDs just in case there are IDs missing
+	remapUsers = {u: i for i,u in enumerate(data["userID"].unique())}
+	remapMovies = {u: i for i,u in enumerate(data["movieID"].unique())}
+	data["userID"] = data["userID"].map(remapUsers)
+	data["movieID"] = data["movieID"].map(remapMovies)
 
-# Using train_test_split() to randomly partition 1/5 of the data for testing.
-trainingData, testingData = tts(data, test_size=0.2, random_state=None)
+	# Casting data to correct types for use 
+	data["userID"] = data["userID"].astype(int)
+	data["movieID"] = data["movieID"].astype(int)
+	data["rating"] = data["rating"].astype(float)
 
+	# data.head(), data.info()
 
+	# Using train_test_split() to randomly partition 1/5 of the data for testing.
+	trainingData, testingData = tts(data, test_size=0.2, random_state=None)
+
+	trainTensorU = torch.tensor(trainingData["userID"].values, dtype=torch.long)
+	trainTensorM = torch.tensor(trainingData["movieID"].values, dtype=torch.long)
+	trainTensorR = torch.tensor(trainingData["rating"].values, dtype=torch.float)
+
+	# testTensorU = torch.tensor(trainingData["userID"].values, dtype=torch.long)
+	# testTensorM = torch.tensor(trainingData["movieID"].values, dtype=torch.long)
+	# testTensorR = torch.tensor(trainingData["rating"].values, dtype=torch.float)
+
+	return trainTensorU, trainTensorM, trainTensorR, len(remapUsers), len(remapMovies)
+
+def getDataLoaders(tensorU, tensorM, tensorR, batchSize=64):
+	trainDataset = TensorDataset(tensorU, tensorM, tensorR)
+	return DataLoader(trainDataset, batch_size=batchSize, shuffle=True)
 
