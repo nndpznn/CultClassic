@@ -1,6 +1,7 @@
-# filmFinder
+# cultClassic
 
-## Blurb
+## HOW TO USE:
+- Use 'python3 -m scripts.train' to call the training function. Will make this prettier later.
 
 ## TODO:
 - TRAINING: Create scripts to train the model on real data, cost/loss function, adjusting weights, etc.

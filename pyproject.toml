@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "CultClassic"
+version = "0.1.0"
+description = "Neural-network based collaborative filtering recommender system for movies."
+authors = [{name = "Nolan Nguyen & Allen Ho"}]
+dependencies = ["torch", "numpy", "sklearn"]
