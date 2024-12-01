@@ -9,7 +9,7 @@ def prepData(file_path, delimiter="\t"):
 	data = pd.read_csv(file_path, sep=delimiter)
 	# print(data.head(10))
 
-	# Re-mapping user IDs to new IDs just in case there are IDs missing
+	# Would re-map user IDs to new IDs, but we know all IDs are present.
 	remapUsers = {u: i for i,u in enumerate(data["userID"].unique())}
 	remapMovies = {u: i for i,u in enumerate(data["movieID"].unique())}
 	data["userID"] = data["userID"].map(remapUsers)
@@ -33,7 +33,7 @@ def prepData(file_path, delimiter="\t"):
 	# testTensorM = torch.tensor(trainingData["movieID"].values, dtype=torch.long)
 	# testTensorR = torch.tensor(trainingData["rating"].values, dtype=torch.float)
 
-	return trainTensorU, trainTensorM, trainTensorR, len(remapUsers), len(remapMovies)
+	return trainTensorU, trainTensorM, trainTensorR, len(data["userID"].unique()), len(data["movieID"].unique())
 
 def getDataLoaders(tensorU, tensorM, tensorR, batchSize=64):
 	trainDataset = TensorDataset(tensorU, tensorM, tensorR)
