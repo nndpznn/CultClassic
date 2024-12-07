@@ -5,6 +5,10 @@ from sklearn.metrics import mean_squared_error as mse
 import numpy as np
 import pandas as pd
 
+#MAE = Mean Absolute Error
+def mae(predictions, actual):
+    return np.mean(np.abs(predictions- actual))
+
 # RMSE: Root Mean Square Error
 def rmse(predictions, actual):
     return np.sqrt(np.mean((predictions - actual) ** 2))
@@ -41,6 +45,7 @@ def evaluate(predictions, actual, k):
     else:
         raise ValueError("Unsupported input types. Use numpy arrays or pandas DataFrames.")
 
+    print(f'MAE: {mae(predictions, actual):.4f}')
     print(f"RMSE: {rmse(predictions, actual):.4f}")
     print(f"Precision@{k}: {precision_at_k(recommended_items, relevant_items, k):.4f}")
     print(f"Recall@{k}: {recall_at_k(recommended_items, relevant_items, k):.4f}")
