@@ -28,20 +28,26 @@ def ndcg(recommended, relevant, k):
     return dcg / idcg if idcg > 0 else 0
 
 # Evaluate Function
-def evaluate(predictions_file, actual_file, k=5):
-    predictions = pd.read_csv(predictions_file) 
-    actual = pd.read_csv(actual_file) 
-    
-    # TODO: Change the rating parameter to the actual rating parameter name once model is trained
-    pred = predictions['rating'].values 
-    act = actual['rating'].values 
-    recommended_items = predictions['items']
-    relevant_items = actual['items']
-    
-    print(f"RMSE: {rmse(pred, act):.4f}")
+def evaluate(predictions, actual, k):
+    # Handle numpy array inputs
+    if isinstance(predictions, np.ndarray) and isinstance(actual, np.ndarray):
+        recommended_items = predictions.argsort()[::-1][:k]  # Top-k indices
+        relevant_items = actual.argsort()[::-1][:k]  # Top-k indices
+    elif isinstance(predictions, pd.DataFrame) and isinstance(actual, pd.DataFrame):
+        pred = predictions['rating'].values
+        act = actual['rating'].values
+        recommended_items = predictions['items']
+        relevant_items = actual['items']
+    else:
+        raise ValueError("Unsupported input types. Use numpy arrays or pandas DataFrames.")
+
+    print(f"RMSE: {rmse(predictions, actual):.4f}")
     print(f"Precision@{k}: {precision_at_k(recommended_items, relevant_items, k):.4f}")
     print(f"Recall@{k}: {recall_at_k(recommended_items, relevant_items, k):.4f}")
     print(f"NDCG@{k}: {ndcg(recommended_items, relevant_items, k):.4f}")
+    # print(f"Recommended items: {recommended_items[:10]}")
+    # print(f"Relevant items: {relevant_items[:10]}")
+
 
 # Main Execution
 # TODO: Change file paths
