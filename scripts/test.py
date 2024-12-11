@@ -6,6 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from data.datasets import prepData
 from models.neuralNetwork import Model  # Assuming this is your neural network model
 from utils.eval import evaluate
+from utils.recommend import recommend_top_k_movies
 
 # 1. Load the trained model
 userTensor, movieTensor, ratingTensor, nUsers, nMovies = prepData("data/raw/ml-100k/u.data")
@@ -37,23 +38,31 @@ rating_tensor = torch.tensor(test_data['rating'].values, dtype=torch.float)
 test_dataset = TensorDataset(user_tensor, movie_tensor, rating_tensor)
 test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)  # DataLoader for batching & Shuffle User Ratings
 
-# TODO 3. Call in evaluation function from eval.py and return the actuals and predictions rating
-def evaluate_model(model, test_loader):
-    actuals, predictions = [], []
+def evaluate_model(model, test_loader, nMovies):
+    user_ids, movie_ids, ratings, predictions = [], [], [], []
+    
     with torch.no_grad():  # Disable gradient tracking during inference
-        for userIds, movieIds, ratings in test_loader:
+        for userIds, movieIds, rBatch in test_loader:
             preds = model(userIds, movieIds).squeeze()  # Get model predictions
-            actuals.extend(ratings.numpy())  # Collect true ratings
+            user_ids.extend(userIds.numpy())  # Collect user ids
+            movie_ids.extend(movieIds.numpy())  # Collect movie ids
+            ratings.extend(rBatch.numpy())  # Collect actual ratings
             predictions.extend(preds.numpy())  # Collect predicted ratings
 
-    actuals, predictions = np.array(actuals), np.array(predictions)
-    return actuals, predictions
+    # Convert to pandas DataFrame
+    df = pd.DataFrame({
+        'user_id': user_ids,
+        'movie_id': movie_ids,
+        'rating': ratings,
+        'predicted_rating': predictions
+    })
 
+    df = df[df['rating'] > 3]
+
+    return df
 # 5. Run the evaluation
-actuals, predictions = evaluate_model(model, test_loader)  # Get the predictions and actual ratings
+df = evaluate_model(model, test_loader, nMovies)
 
 # 6. Output the results
-print(f"Number of test samples: {len(actuals)}")
-print(f"Example Actuals: {actuals[:5]}")
-print(f"Example Predictions: {predictions[:5]}")
-evaluate(predictions=predictions, actual=actuals, k=1000)
+k = 500
+evaluate(model, df, k=k, nMovies=nMovies)

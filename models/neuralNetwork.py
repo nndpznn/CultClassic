@@ -45,6 +45,7 @@ class Model(nn.Module):
         # Concatenating the layers here.
         catted = torch.cat([userVecs,itemVecs], dim=-1)
 
+        # return torch.clamp(self.network(catted), min=1.0, max=5.0)
         return self.network(catted)
     
 

@@ -15,7 +15,9 @@ userTensor, movieTensor, ratingTensor, nUsers, nMovies = prepData("data/raw/ml-1
 dataLoader = getDataLoaders(userTensor, movieTensor, ratingTensor, batchSize=64)
 
 # Initializing our model, with dimensions we can play around with, as well as our SGD function.
+# model = md(nUsers,nMovies,64,[512,256,128])
 model = md(nUsers,nMovies,64,[256,128,64])
+# model = md(nUsers,nMovies,64,[128,64,32])
 optimizer = Adam(model.parameters(), lr=0.001)
 
 try:
@@ -24,20 +26,37 @@ try:
 except FileNotFoundError:
     print("No saved weights found. Starting fresh.")
 
-model.eval() 
+# model.eval() 
+
+# Calculating global average baseline for comparison...
+global_average = torch.mean(ratingTensor)
+print(f"Global Average Rating (Baseline): {global_average.item()}")
 
 for epoch in range(20):
+  model.train()
+  epoch_loss = 0.0
+  baseline_loss = 0.0
+
   for uBatch, mBatch, rBatch in dataLoader:
     predictions = model(uBatch, mBatch)
     rBatch = rBatch.view(-1,1)
 
     loss = F.mse_loss(predictions, rBatch)
+
+    baseline_predictions = torch.full_like(rBatch, global_average)
+    baseline_loss_batch = F.mse_loss(baseline_predictions, rBatch)
     
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
 
-  print(f"Epoch {epoch + 1}, Loss: {loss.item()}")
+    # Accumulate losses
+    epoch_loss += loss.item()
+    baseline_loss += baseline_loss_batch.item()
+
+  epoch_loss /= len(dataLoader)
+  baseline_loss /= len(dataLoader)
+  print(f"Epoch {epoch + 1}, Model Loss: {epoch_loss:.4f}, Baseline Loss: {baseline_loss:.4f}")
 
       # Saving the model checkpoint every 5 epochs
   if (epoch + 1) % 5 == 0:
