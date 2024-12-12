@@ -2,13 +2,11 @@
 # We're using mean square error...
 import torch
 from sklearn.metrics import mean_squared_error as mse
-from sklearn.metrics import precision_score, recall_score
 import numpy as np
-import pandas as pd
 from utils.recommend import recommend_top_k_movies
 import random
 
-#MAE = Mean Absolute Error
+# MAE: Mean Absolute Error
 def mae(predictions, actual):
     return np.mean(np.abs(predictions - actual))
 
@@ -28,6 +26,7 @@ def recall_at_k(recommended, relevant, k):
     relevant_set = set(relevant)
     return len(set(recommended_at_k) & relevant_set) / len(relevant_set)
 
+# NDCG@k
 def ndcg(recommended, relevant, k):
     dcg = sum([1 / np.log2(idx + 2) for idx, item in enumerate(recommended[:k]) if item in relevant])
     idcg = sum([1 / np.log2(idx + 2) for idx in range(min(len(relevant), k))])  # Ideal DCG
@@ -53,7 +52,7 @@ def evaluate(model, df, k, nMovies):
         recommended_items.append(top_k_movies)
         
         # Extract relevant items for this user
-        relevant_items_for_user = df[df['user_id'] == user_id]['movie_id'].values
+        relevant_items_for_user = df[(df['user_id'] == user_id) & (df['rating'] > 3)]['movie_id'].values
         relevant_items.append(relevant_items_for_user)
     
     # Flatten the list of recommended and relevant items for the evaluation metrics
@@ -62,11 +61,8 @@ def evaluate(model, df, k, nMovies):
     
     # Now evaluate using Precision@k, Recall@k, and NDCG
     print(f"Precision@{k}: {precision_at_k(recommended_items_flat, relevant_items_flat, k):.4f}")
-    # print(f"SciKit Precision@{k}: {precision_score(relevant_items_flat, recommended_items_flat):.4f}")
     print(f"Recall@{k}: {recall_at_k(recommended_items_flat, relevant_items_flat, k):.4f}")
-    # print(f"SciKit Recall@{k}: {recall_score(relevant_items_flat, recommended_items_flat):.4f}")
     print(f"NDCG@{k}: {ndcg(recommended_items_flat, relevant_items_flat, k):.4f}")
-
 
     # Sample a fixed number of user-movie pairs
     sample_size = 500  # Adjust based on memory limits
@@ -87,6 +83,5 @@ def evaluate(model, df, k, nMovies):
 
 
 # Main Execution
-# TODO: Change file paths
 if __name__ == "__main__":
     evaluate("predictions.csv", "actual_ratings.csv")

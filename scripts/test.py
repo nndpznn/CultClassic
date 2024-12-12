@@ -1,6 +1,5 @@
 import torch
 import pandas as pd
-import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import LabelEncoder
 from data.datasets import prepData
@@ -56,8 +55,6 @@ def evaluate_model(model, test_loader, nMovies):
         'rating': ratings,
         'predicted_rating': predictions
     })
-
-    df = df[df['rating'] > 3]
 
     return df
 # 5. Run the evaluation
