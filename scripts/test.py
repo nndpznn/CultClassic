@@ -9,7 +9,7 @@ from utils.eval import evaluate
 from utils.recommend import recommend_top_k_movies
 
 # 1. Load the trained model
-userTensor, movieTensor, ratingTensor, nUsers, nMovies = prepData("data/raw/ml-100k/u.data")
+userTensor, movieTensor, ratingTensor, nUsers, nMovies, idToTitle = prepData("data/raw/ml-100k/u.data", "data/raw/ml-100k/u.item")
 model = Model(nUsers, nMovies, embeddingDim=64, hiddenDims=[256,128,64])  # Adjust based on your model
 model.load_state_dict(torch.load('scripts/savedWeights/final_model.pth', weights_only=True)) # Load the trained model
 model.eval()  # Set the model to evaluation mode

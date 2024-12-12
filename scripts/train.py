@@ -11,7 +11,7 @@ save_dir = "./scripts/savedWeights/"
 os.makedirs(save_dir, exist_ok=True)
 
 # Grabbing data, prepping with new indexes and creating dataloader from tensors.
-userTensor, movieTensor, ratingTensor, nUsers, nMovies = prepData("data/raw/ml-100k/u.data")
+userTensor, movieTensor, ratingTensor, nUsers, nMovies, idToTitle = prepData("data/raw/ml-100k/u.data","data/raw/ml-100k/u.item")
 dataLoader = getDataLoaders(userTensor, movieTensor, ratingTensor, batchSize=64)
 
 # Initializing our model, with dimensions we can play around with, as well as our SGD function.
