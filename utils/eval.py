@@ -65,7 +65,7 @@ def evaluate(model, df, k, nMovies):
     print(f"NDCG@{k}: {ndcg(recommended_items_flat, relevant_items_flat, k):.4f}")
 
     # Sample a fixed number of user-movie pairs
-    sample_size = 500  # Adjust based on memory limits
+    sample_size = 10000  # Adjust based on memory limits
     sampled_indices = random.sample(range(len(actual_ratings)), sample_size)
 
     sampled_user_ids = user_ids[sampled_indices]

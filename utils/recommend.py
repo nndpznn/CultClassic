@@ -24,10 +24,18 @@ def recommend_top_k_movies(user_id, model, nMovies, k):
     with torch.no_grad():  # No need to track gradients during inference
         predictions = model(user_ids, movie_ids).squeeze()  # Get model predictions for all movies
     
-    # Get the indices of the top-k predicted ratings (highest scores)
-    _, top_k_indices = torch.topk(predictions, k, largest=True, sorted=True)
+    # Apply the threshold to filter out low-rated movies
+    mask = predictions > 3  # Boolean mask for movies above the threshold
+    filtered_movie_ids = movie_ids[mask]  # Filtered movie IDs
+    filtered_predictions = predictions[mask]  # Filtered predictions
+
+    # If fewer than k movies meet the threshold, adjust k
+    k = min(k, len(filtered_predictions))
+    
+    # Get the indices of the top-k predicted ratings (highest scores) from the filtered list
+    _, top_k_indices = torch.topk(filtered_predictions, k, largest=True, sorted=True)
     
     # Convert indices to movie IDs
-    top_k_movie_ids = movie_ids[top_k_indices].numpy()
+    top_k_movie_ids = filtered_movie_ids[top_k_indices].numpy()
     
     return top_k_movie_ids
