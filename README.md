@@ -1,4 +1,5 @@
-# cultClassic
+# CultClassic - A Movie Buff's Best Friend
+"Top X Movies to Watch" lists are no fun anymore. Everyone's seen 'em. But you'd be crazy to think that those are all the good movies left in the world... but how to go about finding them? Welcome to Cult Classic, a pet project from Nolan Nguyen and Allen Ho, designed to help you find your next film fixation. Harnessing the power of other users with "underground" tastes, our engine aims to deliver the best non-mainstream movies right to your feet. Let's find something new together!
 
 ## HOW TO USE:
 - Use 'python3 -m scripts.train' to call the training function.
